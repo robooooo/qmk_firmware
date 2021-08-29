@@ -18,7 +18,7 @@
 #include "process_tap_hold.h"
 
 enum keycodes {
-  _QK_TAP_HOLD = SAFE_RANGE,
+    _QK_TAP_HOLD = SAFE_RANGE,
 };
 
 const uint16_t QK_TAP_HOLD = _QK_TAP_HOLD;
@@ -26,6 +26,7 @@ const uint16_t QK_TAP_HOLD = _QK_TAP_HOLD;
 // You can use the macros:22124124
 // ACTION_TAP_HOLD_SHIFT(KC_TAP, KC_HOLD, KC_TAP_SHIFT, KC_HOLD_SHIFT)
 // and ACTION_TAP_HOLD(KC_TAP, KC_HOLD)
+// clang-format off
 tap_hold_action_t tap_hold_actions[] = {
   [0] = ACTION_TAP_HOLD(KC_0, KC_F10),
 
@@ -48,25 +49,38 @@ tap_hold_action_t tap_hold_actions[] = {
 //   [15] = ACTION_TAP_HOLD(KC_PGUP, KC_HOME),
 //   [16] = ACTION_TAP_HOLD(KC_PGDN, KC_END)
 };
+// clang-format on
 
-const uint16_t QK_TAP_HOLD_SIZE = sizeof(tap_hold_actions)/sizeof(tap_hold_actions[0]);
+// clang-format off
+const rgblight_segment_t PROGMEM caps_llayer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, 24, HSV_WHITE}
+);
 
-void matrix_scan_user(void) {
-  matrix_scan_tap_hold();
+const rgblight_segment_t* const PROGMEM rgb_llayers[] = RGBLIGHT_LAYERS_LIST(
+    caps_llayer
+);
+// clang-format on
+
+void keyboard_post_init_user(void) { rgblight_layers = rgb_llayers; }
+
+bool led_update_user(led_t led_state) {
+    rgblight_set_layer_state(0, led_state.caps_lock);
+    return true;
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  process_record_tap_hold(keycode, record);
-  return true;
+const uint16_t QK_TAP_HOLD_SIZE = sizeof(tap_hold_actions) / sizeof(tap_hold_actions[0]);
+
+void matrix_scan_user(void) { matrix_scan_tap_hold(); }
+
+bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+    process_record_tap_hold(keycode, record);
+    return true;
 }
 
 // Defines names for use in layer keycodes and the keymap
-enum layer_names {
-    _BASE,
-    _FAST,
-    _FN
-};
+enum layer_names { _BASE, _FAST, _FN };
 
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
     [_BASE] = LAYOUT_all(
@@ -85,10 +99,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_FN] = LAYOUT_all(
         KC_GRV,  KC_F1,   KC_F2,      KC_F3,      KC_F4,       KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,   KC_F12,  KC_F13,  KC_F14,    KC_INS,
-        _______,          KC_MS_BTN1, KC_MS_UP,   KC_MS_BTN2,  _______, _______, _______, _______, _______, _______,  KC_MPLY,  KC_MPRV, KC_MNXT, _______,   KC_HOME,
+        EEP_RST,          KC_MS_BTN1, KC_MS_UP,   KC_MS_BTN2,  _______, _______, _______, _______, _______, _______,  KC_MPLY,  KC_MPRV, KC_MNXT, _______,   KC_HOME,
         RESET,            KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, _______, _______, _______, _______, _______, _______,  _______,  _______,          TG(_FAST), KC_END,
         _______, _______, RGB_RMOD,   RGB_MOD,    RGB_M_SW,    RGB_VAD, RGB_VAI, RGB_SPD, RGB_SPI, KC_VOLD, KC_VOLU,  KC_MUTE,  _______,          KC_PGUP,
         _______, _______, RGB_TOG,                _______,              _______,          _______,          _______,  _______,  _______, KC_HOME, KC_PGDN,   KC_END
     )
 };
-
+// clang-format on
